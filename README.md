@@ -19,9 +19,8 @@ If the answer is not present in the knowledge base, the bot responds with:
 
 ## 📂 Project Structure
 rag-chatbot/
-│── data/ # Knowledge base text files
-│── vectorstore/ # Saved FAISS index
-│── rag_bot.py # RAG chatbot logic
+│── data
+│── beew.py # RAG chatbot logic
 │── requirements.txt # Dependencies
 │── README.md # Project documentation
 
@@ -31,7 +30,7 @@ rag-chatbot/
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/YOUR-USERNAME/rag-chatbot.git
+ git clone https://github.com/Electrobello1/Rag-faiss-chatbot
 cd rag-chatbot
 ```
 2.**Create and activate a virtual environment:**
@@ -77,5 +76,6 @@ ___
  Add Docker support
  
 ## 👨‍💻 Author
+
 
 Developed by Princewill Bello 🚀
