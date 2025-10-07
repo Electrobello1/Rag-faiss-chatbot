@@ -57,21 +57,37 @@ def build_vectorstore(docs):
     return vectorstore
 
 # ========= STEP 4: Setup LLM + OpenVINO =========
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from optimum.intel.openvino import OVModelForCausalLM
+
 def build_llm():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    model = OVModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        export=True,
-        compile=True,
-        device="GPU"  # Intel UHD GPU
-    )
+
+    try:
+        # Try loading OpenVINO optimized model (for Intel GPU/CPU)
+        model = OVModelForCausalLM.from_pretrained(
+            MODEL_ID,
+            export=True,
+            compile=True,
+            device="GPU" if torch.cuda.is_available() else "CPU"
+        )
+        print("✅ Using OpenVINO model (Intel GPU/CPU)")
+    except Exception as e:
+        print(f"⚠️ OpenVINO not available ({e}), using PyTorch model instead.")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model = AutoModelForCausalLM.from_pretrained(MODEL_ID).to(device)
+        print(f"✅ Running with PyTorch on {device.upper()}")
+
     pipe = pipeline(
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        max_new_tokens=200
+        max_new_tokens=200,
+        device=0 if torch.cuda.is_available() else -1
     )
     return HuggingFacePipeline(pipeline=pipe)
+
 
 # ========= STEP 5: Casual Chat Filter =========
 def is_casual(query: str) -> bool:
